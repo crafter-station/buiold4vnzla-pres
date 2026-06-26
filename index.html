@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BUILD4VENEZUELA · Hackathon Global</title>
+<style>
+  @font-face {
+    font-family: "Input Mono Narrow";
+    src: url("fonts/InputMonoNarrow-Light-Testing.ttf") format("truetype");
+    font-weight: 300; font-display: swap;
+  }
+  @font-face {
+    font-family: "Input Mono Narrow";
+    src: url("fonts/InputMonoNarrow-Medium-Testing.ttf") format("truetype");
+    font-weight: 500; font-display: swap;
+  }
+  @font-face {
+    font-family: "Input Mono Narrow";
+    src: url("fonts/InputMonoNarrow-Bold-Testing.ttf") format("truetype");
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: "Input Mono Narrow";
+    src: url("fonts/InputMonoNarrow-Black-Testing.ttf") format("truetype");
+    font-weight: 900; font-display: swap;
+  }
+
+  :root {
+    --bg: #000000;
+    --fg: #ffffff;
+    --primary: #ffd83d;
+    --accent: #16c7e8;
+    --destructive: #ff4a63;
+    --muted: #a6a6a6;
+    --border: #3a3a3a;
+    --card: #080808;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { color-scheme: dark; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Input Mono Narrow", ui-monospace, monospace;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #deck { height: 100vh; width: 100vw; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2rem, 6vw, 7rem);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity .5s ease, transform .5s ease, visibility .5s;
+  }
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  /* faint grain / vignette */
+  #deck::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 120% at 50% 30%, transparent 55%, rgba(0,0,0,.85) 100%);
+    z-index: 50;
+  }
+
+  .eyebrow {
+    font-size: clamp(.7rem, 1vw, .9rem);
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 2.4rem; height: 1px; background: var(--primary);
+    display: inline-block;
+  }
+
+  h1 {
+    font-weight: 900;
+    font-size: clamp(2.2rem, 7vw, 6rem);
+    line-height: .98;
+    letter-spacing: -.02em;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  h2 {
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4.5vw, 3.6rem);
+    line-height: 1.02;
+    letter-spacing: -.01em;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .lead {
+    font-weight: 300;
+    font-size: clamp(1rem, 1.7vw, 1.5rem);
+    color: var(--muted);
+    max-width: 46ch;
+    line-height: 1.5;
+    margin-top: 1.6rem;
+  }
+  .yellow { color: var(--primary); }
+  .cyan { color: var(--accent); }
+  .red { color: var(--destructive); }
+
+  /* TITLE SLIDE */
+  .hero { align-items: center; text-align: center; }
+  .hero .map {
+    width: clamp(120px, 16vw, 240px);
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 60px rgba(255,216,61,.25));
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .hero .wordmark { width: min(680px, 80vw); margin-bottom: 1.4rem; }
+  .hands {
+    position: absolute; bottom: 0; width: 100%; left: 0;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    pointer-events: none; z-index: 1;
+  }
+  .hands img { width: clamp(120px, 20vw, 320px); opacity: .9; }
+  .hands img.left { transform: translateX(-12%); }
+  .hands img.right { transform: translateX(12%); }
+
+  .event-pill {
+    margin-top: .4rem;
+    font-size: clamp(.8rem, 1.3vw, 1.1rem);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: .6rem 1.4rem;
+    border-radius: 100px;
+    display: inline-flex; gap: .6rem; align-items: center;
+  }
+  .event-pill .dot { width:.5rem;height:.5rem;border-radius:50%;background:var(--destructive); box-shadow:0 0 12px var(--destructive); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* STAT GRID */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 3rem; width: 100%; }
+  .stat {
+    border-top: 2px solid var(--destructive);
+    padding-top: 1.2rem;
+  }
+  .stat .val { font-weight: 900; font-size: clamp(2rem, 4.5vw, 4rem); line-height: 1; color: var(--fg); }
+  .stat .lbl { color: var(--muted); font-size: clamp(.75rem, 1.1vw, 1rem); margin-top: .6rem; max-width: 16ch; }
+
+  /* IDEAS LIST */
+  .ideas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem 2.5rem; margin-top: 2.5rem; width: 100%; max-width: 1100px; }
+  .idea {
+    display: flex; gap: 1rem; align-items: flex-start;
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.2rem 1.4rem; background: var(--card);
+    font-size: clamp(.9rem, 1.3vw, 1.15rem); line-height: 1.4;
+    transition: border-color .3s;
+  }
+  .idea:hover { border-color: var(--primary); }
+  .idea .num { color: var(--primary); font-weight: 700; }
+
+  /* CHANNELS */
+  .channels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; margin-top: 2.5rem; width: 100%; max-width: 1000px; }
+  .channel {
+    border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem;
+    background: var(--card);
+  }
+  .channel .name { font-weight: 700; font-size: clamp(1.1rem,1.6vw,1.5rem); color: var(--accent); margin-bottom: .5rem; }
+  .channel .desc { color: var(--muted); font-size: clamp(.85rem,1.1vw,1rem); line-height: 1.4; }
+
+  /* PROCESS / FORMAT chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; }
+  .chip { border: 1px solid var(--border); border-radius: 100px; padding: .7rem 1.4rem; font-size: clamp(.85rem,1.2vw,1.1rem); }
+  .chip b { color: var(--primary); }
+
+  /* CONTEXTO · TERREMOTO — editorial, two-column */
+  .quake {
+    display: grid; grid-template-columns: 1.05fr 1fr;
+    gap: clamp(2.2rem, 6vw, 6rem); align-items: center;
+    width: 100%; max-width: 1200px;
+  }
+  .quake-left h1 { font-size: clamp(1.9rem, 4.4vw, 3.6rem); }
+  .quake .dateline {
+    color: var(--primary); font-size: clamp(.85rem,1.15vw,1.05rem);
+    letter-spacing: .04em; margin-top: 1.1rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .quake .lead { margin-top: 1rem; max-width: 44ch; }
+  .quake-data { display: flex; flex-direction: column; }
+  .qrow {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1.4rem; padding: clamp(.8rem,1.7vh,1.3rem) 0;
+    border-top: 1px solid var(--border);
+  }
+  .qrow:last-child { border-bottom: 1px solid var(--border); }
+  .qnum {
+    font-weight: 900; font-size: clamp(2.3rem,4.6vw,4rem);
+    line-height: .85; letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums; color: var(--fg);
+  }
+  .qnum.red { color: var(--destructive); }
+  .qnum.amber { color: var(--primary); }
+  .qnum.up { color: #3ddc6e; }
+  .qlabel { color: var(--muted); font-size: clamp(.78rem,1.05vw,1rem); text-align: right; max-width: 13ch; line-height: 1.3; }
+  /* staggered entrance, replays each time the slide activates */
+  .quake-slide.active .qrow { animation: rowIn .55s cubic-bezier(.23,1,.32,1) both; }
+  .quake-slide.active .qrow:nth-child(1){ animation-delay:.06s }
+  .quake-slide.active .qrow:nth-child(2){ animation-delay:.13s }
+  .quake-slide.active .qrow:nth-child(3){ animation-delay:.20s }
+  .quake-slide.active .qrow:nth-child(4){ animation-delay:.27s }
+  @keyframes rowIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+  @media (max-width: 820px) { .quake { grid-template-columns: 1fr; gap: 2rem; } .qlabel { max-width: none; } }
+  @media (prefers-reduced-motion: reduce) { .quake-slide.active .qrow { animation: none; } }
+
+  /* WHAT-IS 3 CARDS */
+  .whatcards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.4rem; margin-top: 2.5rem; width: 100%; max-width: 1150px; }
+  .whatcard { border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem 1.6rem; background: var(--card); }
+  .whatcard .ic { font-size: 2rem; margin-bottom: 1rem; }
+  .whatcard .ttl { font-weight: 700; font-size: clamp(1.05rem,1.5vw,1.4rem); color: var(--primary); margin-bottom: .9rem; }
+  .whatcard .bd { color: var(--muted); font-size: clamp(.85rem,1.1vw,1rem); line-height: 1.45; }
+
+  /* PROJECTS GRID */
+  .projgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.1rem; margin-top: 2rem; width: 100%; max-width: 1250px; }
+  .proj { border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.3rem; background: var(--card); display: flex; flex-direction: column; gap: .5rem; }
+  .proj .pn { font-weight: 700; font-size: clamp(1rem,1.35vw,1.25rem); }
+  .proj .lead-by { color: var(--accent); font-style: italic; font-size: clamp(.78rem,1vw,.92rem); }
+  .proj .pd { color: var(--muted); font-size: clamp(.8rem,1.05vw,.98rem); line-height: 1.4; flex: 1; }
+  .proj .meta { display: flex; align-items: center; gap: .6rem; font-size: clamp(.72rem,.95vw,.88rem); color: var(--muted); margin-top: .3rem; }
+  .proj .dotc { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
+  .st-active .dotc { background: #3ddc6e; box-shadow: 0 0 8px #3ddc6e; }
+  .st-done .dotc { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
+  .st-design .dotc { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  /* ORGANIZERS */
+  .orgs { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.4rem; margin-top: 2.8rem; width: 100%; max-width: 1050px; }
+  .org { border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.4rem; background: var(--card); text-align: center; }
+  .org .av { width: 5.5rem; height: 5.5rem; border-radius: 50%; margin: 0 auto 1.1rem; object-fit: cover; border: 2px solid var(--primary); display: block; }
+  .org:nth-child(2) .av { border-color: var(--accent); }
+  .org:nth-child(3) .av { border-color: var(--destructive); }
+  .org:nth-child(4) .av { border-color: #3ddc6e; }
+  .org .on { font-weight: 700; font-size: clamp(.95rem,1.3vw,1.2rem); }
+  .org .or { color: var(--muted); font-size: .82rem; margin-top: .35rem; letter-spacing: .05em; }
+
+  .partners { display: flex; align-items: center; gap: clamp(2rem,5vw,5rem); margin-top: 3rem; flex-wrap: wrap; }
+  .partners img { height: clamp(28px, 4vw, 46px); width: auto; opacity: .85; filter: grayscale(.2); }
+
+  .big-quote { font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 4rem); line-height: 1.1; max-width: 22ch; }
+  .big-quote .yellow { display:block; }
+
+  /* TECH list */
+  .tech { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem 1.6rem; margin-top: 2.5rem; width:100%; max-width: 900px; }
+  .tech div { border-left: 2px solid var(--accent); padding-left: 1rem; font-size: clamp(.9rem,1.2vw,1.1rem); }
+  .tech div span { display:block; color: var(--muted); font-size: .8em; margin-top:.2rem; }
+
+  /* progress + nav */
+  .footer-bar {
+    position: fixed; bottom: 1.4rem; left: 0; width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 clamp(2rem, 6vw, 7rem); z-index: 60;
+    font-size: .8rem; color: var(--muted); letter-spacing: .1em;
+  }
+  .footer-bar .brand { color: var(--fg); font-weight: 700; }
+  .footer-bar .hint { display: flex; gap: .5rem; align-items: center; }
+  .key { border:1px solid var(--border); border-radius:6px; padding:.15rem .5rem; color:var(--fg); }
+  .progress { position: fixed; top:0; left:0; height:3px; background: var(--primary); z-index:70; transition: width .4s ease; box-shadow: 0 0 14px var(--primary); }
+  .counter { position: fixed; top: 1.3rem; right: clamp(2rem,6vw,7rem); z-index:60; font-size:.85rem; color:var(--muted); letter-spacing:.15em; }
+  .counter b { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="counter"><b id="cur">01</b> / <span id="total">11</span></div>
+
+<div id="deck">
+
+  <!-- 1 · TITLE -->
+  <section class="slide hero active">
+    <img class="map" src="assets/venezuelan_map.svg" alt="Mapa de Venezuela" />
+    <img class="wordmark" src="assets/B4V.svg" alt="Build4Venezuela" />
+    <p class="lead" style="margin-top:.4rem;max-width:40ch">Construir soluciones tech <span class="yellow">por Venezuela</span>.</p>
+    <div style="margin-top:1.6rem"><span class="event-pill"><span class="dot"></span> 26 · 27 · 28 de junio &nbsp;//&nbsp; online &nbsp;//&nbsp; hackathon global</span></div>
+    <div class="hands">
+      <img class="left" src="assets/left-hand@2x.png" alt="" />
+      <img class="right" src="assets/right-hand@2x.png" alt="" />
+    </div>
+  </section>
+
+  <!-- 2 · CONTEXT -->
+  <section class="slide">
+    <div class="eyebrow">Contexto</div>
+    <h1>Construir con urgencia,<br><span class="yellow">no con ruido.</span></h1>
+    <p class="lead">Venezuela enfrenta una emergencia mayor tras dos fuertes terremotos el 24 de junio. Los equipos de rescate siguen buscando sobrevivientes mientras llega ayuda internacional y las comunidades afectadas enfrentan una crisis humanitaria en desarrollo.</p>
+  </section>
+
+  <!-- 3 · CONTEXT / QUAKE -->
+  <section class="slide quake-slide">
+    <div class="eyebrow">Contexto</div>
+    <div class="quake">
+      <div class="quake-left">
+        <h1>El terremoto que cambió&nbsp;todo.</h1>
+        <p class="dateline">24 de junio, 2026 · Venezuela</p>
+        <p class="lead">Un sismo de gran magnitud devastó regiones enteras: familias separadas, infraestructura colapsada, comunicaciones cortadas. La respuesta digital fue caótica —datos dispersos en docenas de plataformas, sin interoperabilidad, sin API, sin offline.</p>
+      </div>
+      <div class="quake-data">
+        <div class="qrow"><span class="qnum red">56.000+</span><span class="qlabel">personas reportadas</span></div>
+        <div class="qrow"><span class="qnum red">37.000+</span><span class="qlabel">sin contacto aún</span></div>
+        <div class="qrow"><span class="qnum amber">65%</span><span class="qlabel">caída de conectividad</span></div>
+        <div class="qrow"><span class="qnum up">19.000+</span><span class="qlabel">personas localizadas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · WHAT IS IT -->
+  <section class="slide">
+    <div class="eyebrow">¿Qué es</div>
+    <h1>Build4Venezuela?</h1>
+    <div class="whatcards">
+      <div class="whatcard">
+        <div class="ic">💻</div>
+        <div class="ttl">Hackathon solidario</div>
+        <div class="bd">Un sprint de construcción colectiva donde desarrolladores, diseñadores y PMs de LATAM y el mundo unen fuerzas para construir herramientas reales de respuesta humanitaria.</div>
+      </div>
+      <div class="whatcard">
+        <div class="ic">🌐</div>
+        <div class="ttl">Open source by default</div>
+        <div class="bd">Todo lo que se construye queda disponible para cualquier equipo de rescate, ONG o gobierno. Sin barreras. MIT license. Código que no muere cuando termina el evento.</div>
+      </div>
+      <div class="whatcard">
+        <div class="ic">📡</div>
+        <div class="ttl">Foco: conectividad y datos</div>
+        <div class="bd">Atacamos los gaps reales: funcionamiento offline, búsqueda por WhatsApp/SMS, deduplicación de reportes y una API pública normalizada.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · PROJECT IDEAS -->
+  <section class="slide">
+    <div class="eyebrow">Ideas de proyectos</div>
+    <h2>Qué puedes construir.</h2>
+    <p class="lead" style="margin-top:1rem">Elige un problema concreto. Reduce el alcance. Deja algo que otra persona pueda usar el lunes.</p>
+    <div class="ideas">
+      <div class="idea"><span class="num">01</span> Directorios verificados de refugios, centros de acopio y atención médica.</div>
+      <div class="idea"><span class="num">02</span> Mapas ligeros para reportar necesidades por zona y actualizar estados.</div>
+      <div class="idea"><span class="num">03</span> Bots de WhatsApp para orientar a familias, voluntarios y donantes.</div>
+      <div class="idea"><span class="num">04</span> Herramientas para coordinar voluntarios, transporte, inventario y entregas.</div>
+      <div class="idea"><span class="num">05</span> Páginas simples para traducir información crítica y combatir rumores.</div>
+      <div class="idea"><span class="num">06</span> Sistemas de seguimiento para casos, solicitudes de ayuda y contactos locales.</div>
+    </div>
+  </section>
+
+  <!-- 6 · DEADLINE -->
+  <section class="slide">
+    <div class="eyebrow">Fecha límite</div>
+    <h1><span class="yellow">28 de junio</span><br>1:00 PM.</h1>
+    <p class="lead">Ese día empezamos a <span class="cyan">publicar los proyectos</span>. Puedes seguir avanzando después —el trabajo no se detiene— pero esa es la línea que ponemos para que cada equipo tenga una <span class="yellow">primera versión usable</span> en manos de las personas.</p>
+    <div class="chips">
+      <div class="chip"><b>Hoy → 28, 1 PM</b> &nbsp;construcción</div>
+      <div class="chip"><b>28, 1 PM</b> &nbsp;empezamos a publicar</div>
+      <div class="chip"><b>Después</b> &nbsp;seguimos mejorando</div>
+    </div>
+  </section>
+
+  <!-- 7 · WHAT WE NEED FROM YOU -->
+  <section class="slide">
+    <div class="eyebrow">Lo que necesitamos de ti</div>
+    <h2>Hagamos <span class="yellow">bulla</span>. Estamos construyendo para Venezuela.</h2>
+    <div class="ideas" style="grid-template-columns:1fr;max-width:920px">
+      <div class="idea"><span class="num">01</span> <span><b class="yellow">Mucha bulla en redes sociales.</b> Comparte que estamos construyendo para Venezuela: cada post suma más builders, mentores, aliados y atención.</span></div>
+      <div class="idea"><span class="num">02</span> <span><b class="cyan">Únete a los grupos de WhatsApp.</b> Hay un grupo por cada proyecto. Entra a los que te llamen la atención y colabora con ese equipo.</span></div>
+      <div class="idea"><span class="num">03</span> <span><b>Esta es la forma de estar todos unidos.</b> Una sola causa, muchos equipos, avanzando juntos.</span></div>
+    </div>
+  </section>
+
+  <!-- 8 · PROJECTS IN PROGRESS -->
+  <section class="slide">
+    <div class="eyebrow">Proyectos en marcha</div>
+    <h2 style="max-width:24ch">Ya se está construyendo — únete a un equipo.</h2>
+    <div class="projgrid">
+      <div class="proj">
+        <div class="pn">Reencuentros Venezuela</div>
+        <div class="lead-by">Lead: Alejandra Castaño</div>
+        <div class="pd">Plataforma centralizada de imágenes/videos para reencuentros familiares con IA para matching.</div>
+        <div class="meta st-active">React + IA &nbsp;|&nbsp; <span class="dotc"></span> Activo</div>
+      </div>
+      <div class="proj">
+        <div class="pn">ResQLink</div>
+        <div class="lead-by">Lead: Omar Tobón</div>
+        <div class="pd">Mapa de necesidades vs. recursos. Voluntarios y damnificados con matching geográfico.</div>
+        <div class="meta st-active">React + Mapbox &nbsp;|&nbsp; <span class="dotc"></span> Activo</div>
+      </div>
+      <div class="proj">
+        <div class="pn">BuscaChat</div>
+        <div class="lead-by">Lead: Diego Mucha</div>
+        <div class="pd">Bot de WhatsApp para buscar desaparecidos por nombre o foto usando IA.</div>
+        <div class="meta st-active">Twilio + Go &nbsp;|&nbsp; <span class="dotc"></span> Activo</div>
+      </div>
+      <div class="proj">
+        <div class="pn">Build4VE RAG</div>
+        <div class="lead-by">Lead: Carlos Urias</div>
+        <div class="pd">Base de datos vectorial unificada con info de refugios, emergencias, etc. Consumible por chatbots y agentes.</div>
+        <div class="meta st-done">Python + PGVector &nbsp;|&nbsp; <span class="dotc"></span> Completado</div>
+      </div>
+      <div class="proj">
+        <div class="pn">VZLA_DEDUP</div>
+        <div class="lead-by">Lead: Mathias Aivasovsky</div>
+        <div class="pd">Entity resolution sobre 56k+ registros: fuzzy matching nombre + cédula + zona + edad.</div>
+        <div class="meta st-design">Python + RestAPI &nbsp;|&nbsp; <span class="dotc"></span> En diseño</div>
+      </div>
+      <div class="proj">
+        <div class="pn">Centralización de datos</div>
+        <div class="lead-by">Lead: Marcelo / David M.</div>
+        <div class="pd">API normalizada open source que agrega plataformas ciudadanas dispersas.</div>
+        <div class="meta st-design">FastAPI / Go &nbsp;|&nbsp; <span class="dotc"></span> En diseño</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · JOIN / CHANNELS -->
+  <section class="slide">
+    <div class="eyebrow">Únete</div>
+    <h1>Ven con una habilidad.<br>Sal con un <span class="yellow">proyecto.</span></h1>
+    <div class="channels">
+      <div class="channel"><div class="name">Luma</div><div class="desc">Regístrate al evento y recibe actualizaciones oficiales.</div></div>
+      <div class="channel"><div class="name">WhatsApp</div><div class="desc">Entra al grupo para coordinación rápida y anuncios urgentes.</div></div>
+      <div class="channel"><div class="name">Discord</div><div class="desc">Encuentra equipo, canal de proyecto, mentores y soporte técnico.</div></div>
+      <div class="channel"><div class="name">GitHub</div><div class="desc">Revisa el repo, abre issues y comparte avances del proyecto.</div></div>
+    </div>
+  </section>
+
+  <!-- 10 · ORGANIZERS -->
+  <section class="slide">
+    <div class="eyebrow">¿Dudas?</div>
+    <h2>Pregunta a los <span class="yellow">organizadores</span>.</h2>
+    <p class="lead" style="margin-top:1rem">Si tienes cualquier duda sobre el evento, escríbele directo a quienes lo están organizando.</p>
+    <div class="orgs">
+      <div class="org"><img class="av" src="assets/cueva.jpeg" alt="Anthony Cueva" /><div class="on">Anthony Cueva</div><div class="or">Organizador</div></div>
+      <div class="org"><img class="av" src="assets/cris.png" alt="Cris Correa" /><div class="on">Cris Correa</div><div class="or">Organizador</div></div>
+      <div class="org"><img class="av" src="assets/shiara.jpg" alt="Shiara Arauzo" /><div class="on">Shiara Arauzo</div><div class="or">Organizadora</div></div>
+      <div class="org"><img class="av" src="assets/ainara.png" alt="Ainara Taborda" /><div class="on">Ainara Taborda</div><div class="or">Organizadora</div></div>
+    </div>
+  </section>
+
+  <!-- 11 · CLOSE -->
+  <section class="slide hero">
+    <img class="map" src="assets/v-mark.svg" alt="" style="width:clamp(90px,11vw,150px)" />
+    <p class="big-quote" style="text-align:center">La tecnología también puede ser<span class="yellow">una forma de solidaridad.</span></p>
+    <p class="lead" style="text-align:center;max-width:42ch">build4venezuela.com</p>
+    <div class="partners">
+      <img src="assets/moraleja-studio.svg" alt="Moraleja Studio" />
+      <img src="assets/CS.svg" alt="Crafter Station" />
+      <img src="assets/THC.svg" alt="The Hackathon Company" />
+    </div>
+  </section>
+
+</div>
+
+<div class="footer-bar">
+  <span class="brand">BUILD4VENEZUELA</span>
+  <span class="hint"><span class="key">←</span><span class="key">→</span> para navegar</span>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const total = slides.length;
+  let i = 0;
+  document.getElementById("total").textContent = String(total).padStart(2, "0");
+
+  function show(n) {
+    i = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+    document.getElementById("cur").textContent = String(i + 1).padStart(2, "0");
+    document.getElementById("progress").style.width = ((i + 1) / total * 100) + "%";
+  }
+
+  function next() { show(i + 1); }
+  function prev() { show(i - 1); }
+
+  document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+      case "ArrowRight": case "ArrowDown": case "PageDown": case " ": e.preventDefault(); next(); break;
+      case "ArrowLeft": case "ArrowUp": case "PageUp": e.preventDefault(); prev(); break;
+      case "Home": show(0); break;
+      case "End": show(total - 1); break;
+    }
+  });
+
+  // optional: click right/left half to advance (kept subtle, arrows are primary)
+  document.getElementById("deck").addEventListener("click", (e) => {
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+
+  show(0);
+</script>
+</body>
+</html>
