@@ -183,6 +183,9 @@
   a.channel:hover { border-color: var(--accent); background: rgba(22,199,232,.06); transform: translateY(-2px); }
   a.channel:active { transform: translateY(0) scale(.99); }
   a.channel:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .channel.wide { grid-column: 1 / -1; border-color: rgba(255,216,61,.35); background: rgba(255,216,61,.05); }
+  .channel.wide .name { color: var(--primary); }
+  a.channel.wide:hover { border-color: var(--primary); background: rgba(255,216,61,.09); }
   .channel .name { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: clamp(1.1rem,1.6vw,1.5rem); color: var(--accent); margin-bottom: .5rem; }
   .channel .name::after { content: "↗"; font-size: .7em; color: var(--muted); opacity: 0; transition: opacity 180ms ease, transform 180ms ease; }
   a.channel:hover .name::after { opacity: 1; transform: translate(2px,-2px); }
@@ -267,6 +270,14 @@
 
   .big-quote { font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 4rem); line-height: 1.1; max-width: 22ch; }
   .big-quote .yellow { display:block; }
+
+  .hashtag {
+    margin-top: 1.4rem; font-weight: 900;
+    font-size: clamp(1.6rem, 4vw, 3.2rem); letter-spacing: -.01em;
+    color: var(--primary);
+    border: 1px solid rgba(255,216,61,.4); border-radius: 100px;
+    padding: .7rem 1.8rem; background: rgba(255,216,61,.06);
+  }
 
   /* TECH list */
   .tech { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem 1.6rem; margin-top: 2.5rem; width:100%; max-width: 900px; }
@@ -445,6 +456,7 @@
       <a class="channel" href="https://chat.whatsapp.com/JH4oq2pmeX43EWXkvRhQHC?mode=gi_t" target="_blank" rel="noopener noreferrer"><div class="name">WhatsApp</div><div class="desc">Entra al grupo para coordinación rápida y anuncios urgentes.</div></a>
       <a class="channel" href="https://discord.gg/wGBSWw6U9" target="_blank" rel="noopener noreferrer"><div class="name">Discord</div><div class="desc">Encuentra equipo, canal de proyecto, mentores y soporte técnico.</div></a>
       <a class="channel" href="https://github.com/crafter-station/buiold4vnzla-pres" target="_blank" rel="noopener noreferrer"><div class="name">GitHub</div><div class="desc">Revisa el repo, abre issues y comparte avances del proyecto.</div></a>
+      <a class="channel wide" href="https://docs.google.com/spreadsheets/d/1izXHF-aZOOu7VvfmbpH8TmVCFbjqwm2eqnpJN2ODrCo/edit?usp=sharing" target="_blank" rel="noopener noreferrer"><div class="name">Proyectos &amp; equipos</div><div class="desc">Lista completa de los proyectos en marcha y a cuál equipo unirte.</div></a>
     </div>
   </section>
 
@@ -466,7 +478,9 @@
   <section class="slide hero">
     <img class="map" src="assets/v-mark.svg" alt="" style="width:clamp(90px,11vw,150px)" />
     <p class="big-quote" style="text-align:center">La tecnología también puede ser<span class="yellow">una forma de solidaridad.</span></p>
-    <p class="lead" style="text-align:center;max-width:42ch">build4venezuela.com</p>
+    <p class="lead" style="text-align:center;max-width:48ch">Comparte en redes lo que estás construyendo y usa el hashtag para hacer bulla:</p>
+    <div class="hashtag">#build4Venezuela</div>
+    <p class="lead" style="text-align:center;max-width:42ch;margin-top:1.4rem">build4venezuela.com</p>
     <div class="partners">
       <img src="assets/moraleja-studio.svg" alt="Moraleja Studio" />
       <img src="assets/CS.svg" alt="Crafter Station" />
