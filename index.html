@@ -175,10 +175,17 @@
   /* CHANNELS */
   .channels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; margin-top: 2.5rem; width: 100%; max-width: 1000px; }
   .channel {
+    display: block; text-decoration: none; color: inherit;
     border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem;
     background: var(--card);
+    transition: border-color 180ms cubic-bezier(.23,1,.32,1), background-color 180ms cubic-bezier(.23,1,.32,1), transform 180ms cubic-bezier(.23,1,.32,1);
   }
-  .channel .name { font-weight: 700; font-size: clamp(1.1rem,1.6vw,1.5rem); color: var(--accent); margin-bottom: .5rem; }
+  a.channel:hover { border-color: var(--accent); background: rgba(22,199,232,.06); transform: translateY(-2px); }
+  a.channel:active { transform: translateY(0) scale(.99); }
+  a.channel:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .channel .name { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: clamp(1.1rem,1.6vw,1.5rem); color: var(--accent); margin-bottom: .5rem; }
+  .channel .name::after { content: "↗"; font-size: .7em; color: var(--muted); opacity: 0; transition: opacity 180ms ease, transform 180ms ease; }
+  a.channel:hover .name::after { opacity: 1; transform: translate(2px,-2px); }
   .channel .desc { color: var(--muted); font-size: clamp(.85rem,1.1vw,1rem); line-height: 1.4; }
 
   /* PROCESS / FORMAT chips */
@@ -434,10 +441,10 @@
     <div class="eyebrow">Únete</div>
     <h1>Ven con una habilidad.<br>Sal con un <span class="yellow">proyecto.</span></h1>
     <div class="channels">
-      <div class="channel"><div class="name">Luma</div><div class="desc">Regístrate al evento y recibe actualizaciones oficiales.</div></div>
-      <div class="channel"><div class="name">WhatsApp</div><div class="desc">Entra al grupo para coordinación rápida y anuncios urgentes.</div></div>
-      <div class="channel"><div class="name">Discord</div><div class="desc">Encuentra equipo, canal de proyecto, mentores y soporte técnico.</div></div>
-      <div class="channel"><div class="name">GitHub</div><div class="desc">Revisa el repo, abre issues y comparte avances del proyecto.</div></div>
+      <a class="channel" href="https://build4venezuela.com/luma" target="_blank" rel="noopener noreferrer"><div class="name">Luma</div><div class="desc">Regístrate al evento y recibe actualizaciones oficiales.</div></a>
+      <a class="channel" href="https://chat.whatsapp.com/JH4oq2pmeX43EWXkvRhQHC?mode=gi_t" target="_blank" rel="noopener noreferrer"><div class="name">WhatsApp</div><div class="desc">Entra al grupo para coordinación rápida y anuncios urgentes.</div></a>
+      <a class="channel" href="https://discord.gg/wGBSWw6U9" target="_blank" rel="noopener noreferrer"><div class="name">Discord</div><div class="desc">Encuentra equipo, canal de proyecto, mentores y soporte técnico.</div></a>
+      <a class="channel" href="https://github.com/crafter-station/buiold4vnzla-pres" target="_blank" rel="noopener noreferrer"><div class="name">GitHub</div><div class="desc">Revisa el repo, abre issues y comparte avances del proyecto.</div></a>
     </div>
   </section>
 
@@ -501,6 +508,7 @@
 
   // optional: click right/left half to advance (kept subtle, arrows are primary)
   document.getElementById("deck").addEventListener("click", (e) => {
+    if (e.target.closest("a")) return; // don't advance when clicking links
     if (e.clientX > window.innerWidth / 2) next(); else prev();
   });
 
